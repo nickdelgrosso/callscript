@@ -25,10 +25,17 @@ def replace_inputs(code: str, replacements: Dict[str, Any], substr: str = "input
     red = RedBaron(code)
     nodes = red.node_list
     input_comment_nodes = nodes.find_all('comment', value=lambda s: substr in s)
+    comments = [node.dumps() for node in input_comment_nodes]
     input_line_nums = (node.absolute_bounding_box.top_left.line for node in input_comment_nodes)
-    input_nodes = (red.at(line_num) for line_num in input_line_nums)
-    for node in input_nodes:
-        node.value = str(replacements[node.target.dumps()])
+    input_nodes = [red.at(line_num) for line_num in input_line_nums]
+    input_names = [node.target.dumps() for node in input_nodes]
+
+    
+    for comment, name, node in zip(comments, input_names, input_nodes):
+        cmd, *newname = comment.split(':', 1)
+        full_name = newname[0].strip() if newname else name
+        new_value = replacements[full_name]
+        node.value = str(new_value)
     new_code = red.dumps()
     return new_code
     

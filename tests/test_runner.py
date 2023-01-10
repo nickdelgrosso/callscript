@@ -27,16 +27,28 @@ def test_specify_output_variables_gets_new_varnames():
 
 def test_replace_input_variables():
     code = dedent("""
-    x = 3  # :input:
+    x = 3  # input
     y = 5
     """)
     replacement = {'x': 10}
     expected_result = dedent("""
-    x = 10  # :input:
+    x = 10  # input
     y = 5
     """)
-    result = replace_inputs(code, replacement, ':input:')
+    result = replace_inputs(code, replacement, 'input')
     assert result == expected_result
 
-
-
+def test_replace_input_variables_with_new_varnames():
+    code = dedent("""
+    x = 3  # input:First
+    y = 5  # input:Second
+    z = 1  # input
+    """)
+    replacement = {'First': 10, 'Second': 50, 'z': 30}
+    expected_result = dedent("""
+    x = 10  # input:First
+    y = 50  # input:Second
+    z = 30  # input
+    """)
+    result = replace_inputs(code, replacement, 'input')
+    assert result == expected_result
