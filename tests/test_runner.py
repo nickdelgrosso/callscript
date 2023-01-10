@@ -1,7 +1,7 @@
 
 
 from textwrap import dedent
-from callscript.runner import get_output_var_names, replace_inputs
+from callscript.callscript import get_output_var_names, replace_inputs, call
 
 def test_get_output_names():
     script = dedent("""
@@ -21,7 +21,7 @@ def test_specify_output_variables_gets_new_varnames():
         y = 5 # output:Second
     """)
     outputs = get_output_var_names(script)
-    assert outputs == {'x': 'First', 'y': 'Second'}
+    assert outputs == {'First': 'x', 'Second': 'y'}
 
 
 
@@ -52,3 +52,24 @@ def test_replace_input_variables_with_new_varnames():
     """)
     result = replace_inputs(code, replacement, 'input')
     assert result == expected_result
+
+
+def test_call_on_general_script():
+    code = dedent("""
+    x = 3  # input
+    y = 4  # input
+    z = x + y  # output
+    """)
+    results = call(code, x=10, y=20)
+    assert results['z'] == 30
+
+
+def test_call_on_general_script_has_original_values_as_defaults():
+    code = dedent("""
+    x = 3  # input
+    y = 4  # input
+    z = x + y  # output
+    """)
+    results = call(code, x=10)
+    assert results['z'] == 14
+

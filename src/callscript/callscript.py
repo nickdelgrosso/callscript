@@ -1,8 +1,24 @@
+from os import PathLike
+from pathlib import Path
 from typing import Any, List, Dict
+from warnings import warn
 from redbaron import RedBaron, AssignmentNode
 
 
-def get_output_var_names(code: str, substr: str = "output") -> List[str]:
+def callscript(script: Union[str, Path], **kwargs) -> Dict[str, Any]:
+    code = Path(script).read_text()
+    return call(code, **kwargs)
+
+
+def call(code: str, **kwargs) -> Dict[str, Any]:
+    output_vars = get_output_var_names(code)
+    new_code = replace_inputs(code, replacements=kwargs)
+    all_vars = exec_locally(new_code)
+    outputs = {output_var: all_vars[var] for output_var, var in output_vars.items()}
+    return outputs
+    
+
+def get_output_var_names(code: str, substr: str = "output") -> Dict[str, Any]:
     red = RedBaron(code)
     nodes = red.node_list
     output_comment_nodes = nodes.find_all('comment', value = lambda s: substr in s)
@@ -16,7 +32,7 @@ def get_output_var_names(code: str, substr: str = "output") -> List[str]:
     for output_name, comment in zip(output_names, comments):
         cmd, *newname = comment.split(':', 1)
         full_name = newname[0] if newname else output_name
-        full_names[output_name] = full_name
+        full_names[full_name] = output_name
 
     return full_names
 
@@ -34,9 +50,14 @@ def replace_inputs(code: str, replacements: Dict[str, Any], substr: str = "input
     for comment, name, node in zip(comments, input_names, input_nodes):
         cmd, *newname = comment.split(':', 1)
         full_name = newname[0].strip() if newname else name
-        new_value = replacements[full_name]
-        node.value = str(new_value)
+        if full_name in replacements:
+            new_value = replacements[full_name]
+            node.value = str(new_value)
     new_code = red.dumps()
     return new_code
     
 
+def exec_locally(code) -> Dict[str, Any]:
+    names = {}
+    exec(code, {}, names)
+    return names
