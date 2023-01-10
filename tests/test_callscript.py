@@ -1,7 +1,7 @@
 
 
 from textwrap import dedent
-from callscript.callscript import get_output_var_names, replace_inputs, call
+from callscript.callscript import get_output_var_names, replace_inputs, call, callscript
 
 def test_get_output_names():
     script = dedent("""
@@ -73,3 +73,7 @@ def test_call_on_general_script_has_original_values_as_defaults():
     results = call(code, x=10)
     assert results['z'] == 14
 
+
+def test_callscript1():
+    results = callscript('examples/script.py', x=10, y=30)
+    assert results == {'z': 40}

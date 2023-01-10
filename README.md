@@ -8,33 +8,35 @@ If you label your script with the "input" or "output" comments, `callscript` can
 
 
 ```python
-# script.py
+# examples/script.py
 x = 3  # input
 y = 5  # input
-z = 10 + 5  # output
+z = x + y  # output
 ```
 
 Then from your other code, you can call it with the `callscript()` function:
 
 ```python
 >>> from callscript import callscript
->>> callscript('script.py', x=10, y=20)
+>>> callscript('examples/script.py', x=10, y=20)
 {'z': 30}
+
 ```
 
 Want to change your variable names? You can do that, too!
 
 ```python
-# script.py
+# examples/script2.py
 x = 3  # input:FirstWeek
 y = 5  # input:SecondWeek
-z = 10 + 5  # output:sum
+z = x + y  # output:sum
 ```
 
 ```python
 >>> from callscript import callscript
->>> callscript('script.py', FirstWeek=10, SecondWeek=20)
+>>> callscript('examples/script2.py', FirstWeek=10, SecondWeek=20)
 {'sum': 30}
+
 ```
 
 

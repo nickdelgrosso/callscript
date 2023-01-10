@@ -1,7 +1,5 @@
-from os import PathLike
 from pathlib import Path
-from typing import Any, List, Dict
-from warnings import warn
+from typing import Any, Dict, Union
 from redbaron import RedBaron, AssignmentNode
 
 
