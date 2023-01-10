@@ -7,6 +7,7 @@ name = "callscript"
 description = "Makes scripts feel like functions."
 requires-python = ">=2.7"
 license = {file = "LICENSE.txt"}
+readme = "README.md"
 keywords = []#
 authors = [
   {name = "Nicholas A. Del Grosso", email = "delgrosso.nick@gmail.com"},
@@ -23,7 +24,7 @@ dependencies = [
   "redbaron",
 ]
 
-dynamic = ["version", "readme"]
+dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
@@ -36,6 +37,8 @@ readme = {file = "README.md"}
 
 [tool.setuptools_scm]
 write_to = "src/callscript/_version.py"
+local_scheme = "no-local-version"
+
 
 # [project.urls]
 # homepage = "https://example.com"
