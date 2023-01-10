@@ -1,0 +1,9 @@
+.tox-info*
+*.whl
+*.egg-info
+*.pyc
+dist/
+build/
+.pytest_cache
+.tox
+_version.py

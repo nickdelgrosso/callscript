@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "callscript"
+description = "Makes scripts work like functions."
+requires-python = ">=2.7"
+license = {file = "LICENSE.txt"}
+keywords = []#
+authors = [
+  {name = "Nicholas A. Del Grosso", email = "delgrosso.nick@gmail.com"},
+]
+maintainers = [
+  {name = "Nicholas A. Del Grosso", email = "delgrosso.nick@gmail.com"},
+]
+classifiers = [
+#   "Development Status :: 4 - Beta",
+  "Programming Language :: Python"
+]
+
+dependencies = [
+  "redbaron",
+]
+
+dynamic = ["version", "readme"]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-cov[all]"
+]
+
+[tool.setuptools.dynamic]
+readme = {file = "README.md"}
+
+[tool.setuptools_scm]
+write_to = "src/callscript/_version.py"
+
+# [project.urls]
+# homepage = "https://example.com"
+# documentation = "https://readthedocs.org"
+# repository = "https://github.com/me/spam.git"
+# changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+
+# [project.scripts]
+# spam-cli = "spam:main_cli"
+
+# [project.entry-points."spam.magical"]
+# tomatoes = "spam:main_tomatoes"
