@@ -1,5 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/callscript.svg)](https://badge.fury.io/py/callscript)
 [![Python package](https://github.com/nickdelgrosso/callscript/actions/workflows/python-package.yml/badge.svg)](https://github.com/nickdelgrosso/callscript/actions/workflows/python-package.yml)
+[![Coverage Status](https://coveralls.io/repos/github/nickdelgrosso/callscript/badge.svg)](https://coveralls.io/github/nickdelgrosso/callscript)
 
 # callscript
 
