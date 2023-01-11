@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, TypedDict, Union
-from redbaron import RedBaron, AssignmentNode
+from redbaron import RedBaron, AssignmentNode, Node
 
 
 def callscript(script: Union[str, Path], **kwargs) -> Dict[str, Any]:
@@ -11,6 +11,7 @@ def callscript(script: Union[str, Path], **kwargs) -> Dict[str, Any]:
 
 def call(code: str, **kwargs) -> Dict[str, Any]:
     output_vars = get_output_var_names(code)
+    code = strip_ignored_lines(code)
     new_code = munge_input_values(code)
 
     inputs = {munge_name(name): value for name, value in kwargs.items()}
@@ -41,8 +42,20 @@ def munge_input_values(code: str, substr: str = "input") -> str:
     return red.dumps()
 
 
+def strip_ignored_lines(code: str, substr: str = 'ignore') -> str:
+    red = RedBaron(code)
+    lines = code.splitlines(keepends=True)
+    comment_line_info = extract_info(red, substr)
+    for line in reversed(comment_line_info):
+        del lines[line['line_num'] - 1]
+    new_code = ''.join(lines)
+    return new_code
+
+
 def munge_name(name):
     return f'__{name}'
+
+
 
 
 
@@ -50,8 +63,8 @@ def munge_name(name):
 
 class CommentedAssignment(TypedDict):
     line_num: int
-    node: AssignmentNode
-    name: str
+    node: Node
+    name: Optional[str]
     comment: str
     comment_cmd: str
     replacement_name: Optional[str]
@@ -60,12 +73,12 @@ class CommentedAssignment(TypedDict):
 
 def extract_info(red: RedBaron, substr: str) -> List[CommentedAssignment]:
     lines = []
-    for comment_node in red.node_list.find_all('comment', value=lambda s: substr in s):
+    comment_nodes = red.node_list.find_all('comment', value=lambda s: substr in s)
+    for comment_node in comment_nodes:
         comment = comment_node.dumps()
         line_num = comment_node.absolute_bounding_box.top_left.line
         assignment_node = red.at(line_num)
-        assert isinstance(assignment_node, AssignmentNode)
-        name = assignment_node.target.dumps()
+        name = assignment_node.target.dumps() if isinstance(assignment_node, AssignmentNode) else None
         cmd, *newname = comment.replace('#', '').strip().split(':', 1)
 
         line: CommentedAssignment = {

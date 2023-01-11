@@ -39,6 +39,21 @@ z = x + y  # output:sum
 
 ```
 
+Want some lines to be ignored when being called by `callscript()`?  Use the `# ignore` tag!
+
+```python
+# examples/script3.py
+x = 3  # input
+y = 5  # input
+input('What is your name?')  # ignore
+z = x + y  # output
+z = 100000   # ignore
+```
+
+```python
+>>> from callscript import callscript
+>>> callscript('examples/script3.py', x=10, y=20)
+{'z': 30}
 
 ## Installation
 
