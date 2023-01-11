@@ -1,7 +1,7 @@
 
 
 from textwrap import dedent
-from callscript.callscript import get_output_var_names, replace_inputs, call, callscript
+from callscript.callscript import get_output_var_names, munge_input_values, replace_inputs, call, callscript
 
 def test_get_output_names():
     script = dedent("""
@@ -39,6 +39,7 @@ def test_replace_input_variables_int():
     assert result == expected_result
 
 
+
 def test_replace_input_variables_with_new_varnames():
     code = dedent("""
     x = 3  # input:First
@@ -65,6 +66,16 @@ def test_call_on_general_script():
     assert results['z'] == 30
 
 
+# def test_call_on_general_script_strings():
+#     code = dedent("""
+#     x = 3  # input
+#     y = 4  # input
+#     z = x + y  # output
+#     """)
+#     results = call(code, x='Hello', y='World')
+#     assert results['z'] == 'HelloWorld'
+
+
 def test_call_on_general_script_has_original_values_as_defaults():
     code = dedent("""
     x = 3  # input
@@ -75,19 +86,20 @@ def test_call_on_general_script_has_original_values_as_defaults():
     assert results['z'] == 14
 
 
+
 def test_callscript1():
     results = callscript('examples/script.py', x=10, y=30)
     assert results == {'z': 40}
 
 
-# def test_munging():
-#     code = dedent("""
-#     x = 3  # input
-#     y = 5
-#     """)
-#     new_code = munge_input_values(code)
-#     expected_result = dedent("""
-#     x = __x  # input
-#     y = 5
-#     """)
-#     assert new_code == expected_result
+def test_munging():
+    code = dedent("""
+    x = 3  # input
+    y = 5
+    """)
+    new_code = munge_input_values(code, "input")
+    expected_result = dedent("""
+    x = __x  # input
+    y = 5
+    """)
+    assert new_code == expected_result

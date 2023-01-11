@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Optional, TypedDict, Union
 from redbaron import RedBaron, AssignmentNode
 
 
@@ -17,19 +17,33 @@ def call(code: str, **kwargs) -> Dict[str, Any]:
     return outputs
     
 
+def exec_locally(code) -> Dict[str, Any]:
+    names = {}
+    exec(code, {}, names)
+    return names
+
 
 def get_output_var_names(code: str, substr: str = "output") -> Dict[str, Any]:
     red = RedBaron(code)
     lines = extract_info(red, substr)
-    
-    full_names = {}
-    for line in lines:
-        cmd, *newname = line['comment'].split(':', 1)
-        name = line['name']
-        full_name = newname[0] if newname else name
-        full_names[full_name] = name
-
+    full_names = dict((line['replacement_name'] or line['name'], line['name']) for line in lines)
     return full_names
+
+
+def munge_input_values(code: str, substr: str = "input") -> str:
+    red = RedBaron(code)
+    lines = extract_info(red, substr)
+    for line in lines:
+        munged_name = munge_name(line["name"])
+        line['node'].value = munged_name
+    return red.dumps()
+
+
+def munge_name(name):
+    return f'__{name}'
+
+
+
 
 
 def replace_inputs(code: str, replacements: Dict[str, Any], substr: str = "input") -> str:
@@ -37,9 +51,7 @@ def replace_inputs(code: str, replacements: Dict[str, Any], substr: str = "input
     lines = extract_info(red, substr)
     
     for line in lines:
-        cmd, *newname = line['comment'].split(':', 1)
-        name = line['name']
-        full_name = newname[0].strip() if newname else name
+        full_name = line['replacement_name'] or line['name']
         if full_name in replacements:
             new_value = replacements[full_name]
             line['node'].value = str(new_value)
@@ -47,22 +59,38 @@ def replace_inputs(code: str, replacements: Dict[str, Any], substr: str = "input
     return new_code
 
 
+## Info Extraction
 
-def extract_info(red: RedBaron, substr: str) -> Dict[str, Any]:
+class CommentedAssignment(TypedDict):
+    line_num: int
+    node: AssignmentNode
+    name: str
+    comment: str
+    comment_cmd: str
+    replacement_name: Optional[str]
+
+
+
+def extract_info(red: RedBaron, substr: str) -> List[CommentedAssignment]:
     lines = []
     for comment_node in red.node_list.find_all('comment', value=lambda s: substr in s):
         comment = comment_node.dumps()
         line_num = comment_node.absolute_bounding_box.top_left.line
         assignment_node = red.at(line_num)
-        name = assignment_node.target.dumps()
         assert isinstance(assignment_node, AssignmentNode)
-        line = dict(line_num=line_num, node=assignment_node, name=name, comment=comment)
+        name = assignment_node.target.dumps()
+        cmd, *newname = comment.replace('#', '').strip().split(':', 1)
+
+        line: CommentedAssignment = {
+            'line_num': line_num, 
+            'node': assignment_node, 
+            'name': name, 
+            'comment': comment,
+            'comment_cmd': cmd,
+            'replacement_name': newname[0] if newname else None,
+        }
         lines.append(line)
     return lines
 
 
 
-def exec_locally(code) -> Dict[str, Any]:
-    names = {}
-    exec(code, {}, names)
-    return names
