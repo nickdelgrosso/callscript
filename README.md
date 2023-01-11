@@ -2,6 +2,11 @@
 
 Want to add a GUI, CLI, or simply test your script, but you don't want to modify your code?  Call a script as though it were a function!  
 
+## Installation
+
+`pip install callscript`
+
+
 ## Usage:
 
 If you label your script with the "input" or "output" comments, `callscript` can call it!
@@ -33,7 +38,6 @@ z = x + y  # output:sum
 ```
 
 ```python
->>> from callscript import callscript
 >>> callscript('examples/script2.py', FirstWeek=10, SecondWeek=20)
 {'sum': 30}
 
@@ -51,13 +55,22 @@ z = 100000   # ignore
 ```
 
 ```python
->>> from callscript import callscript
 >>> callscript('examples/script3.py', x=10, y=20)
 {'z': 30}
 
-## Installation
+```
 
-`pip install callscript`
+`callscript()` will use the original values of the inputs in the script as defaults.
 
+```python
+# examples/script4.py
+name = 'Nick'          # input
+greeting = 'Hello, '   # input
+msg = greeting + name  # output
+```
 
+```python
+>>> callscript('examples/script4.py', name='Emma')
+{'msg': 'Hello, Emma'}
 
+```

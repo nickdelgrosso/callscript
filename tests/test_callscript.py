@@ -45,14 +45,14 @@ def test_call_on_general_script_strings():
     assert results['z'] == 'HelloWorld'
 
 
-# def test_call_on_general_script_has_original_values_as_defaults():
-#     code = dedent("""
-#     x = 3  # input
-#     y = 4  # input
-#     z = x + y  # output
-#     """)
-#     results = call(code, x=10)
-#     assert results['z'] == 14
+def test_call_on_general_script_has_original_values_as_defaults():
+    code = dedent("""
+    x = 3  # input
+    y = 4  # input
+    z = x + y  # output
+    """)
+    results = call(code, x=10)
+    assert results['z'] == 14
 
 
 

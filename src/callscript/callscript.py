@@ -12,7 +12,7 @@ def callscript(script: Union[str, Path], **kwargs) -> Dict[str, Any]:
 def call(code: str, **kwargs) -> Dict[str, Any]:
     output_vars = get_output_var_names(code)
     code = strip_ignored_lines(code)
-    new_code = munge_input_values(code)
+    new_code = munge_input_values(code, include=list(kwargs.keys()))
 
     inputs = {munge_name(name): value for name, value in kwargs.items()}
     all_vars = exec_locally(new_code, inputs)
@@ -33,12 +33,14 @@ def get_output_var_names(code: str, substr: str = "output") -> Dict[str, Any]:
     return full_names
 
 
-def munge_input_values(code: str, substr: str = "input") -> str:
+def munge_input_values(code: str, substr: str = "input", include: Optional[List[str]] = None) -> str:
     red = RedBaron(code)
     lines = extract_info(red, substr)
     for line in lines:
-        munged_name = munge_name(line['replacement_name'] or line['name'])
-        line['node'].value = munged_name
+        name = line['replacement_name'] or line['name']
+        if not include or name in include:
+            munged_name = munge_name(name)
+            line['node'].value = munged_name
     return red.dumps()
 
 
