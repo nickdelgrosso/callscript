@@ -11,14 +11,16 @@ def callscript(script: Union[str, Path], **kwargs) -> Dict[str, Any]:
 
 def call(code: str, **kwargs) -> Dict[str, Any]:
     output_vars = get_output_var_names(code)
-    new_code = replace_inputs(code, replacements=kwargs)
-    all_vars = exec_locally(new_code)
+    new_code = munge_input_values(code)
+
+    inputs = {munge_name(name): value for name, value in kwargs.items()}
+    all_vars = exec_locally(new_code, inputs)
     outputs = {output_var: all_vars[var] for output_var, var in output_vars.items()}
     return outputs
     
 
-def exec_locally(code) -> Dict[str, Any]:
-    names = {}
+def exec_locally(code, inputs: dict = None) -> Dict[str, Any]:
+    names = inputs or {}
     exec(code, {}, names)
     return names
 
@@ -34,7 +36,7 @@ def munge_input_values(code: str, substr: str = "input") -> str:
     red = RedBaron(code)
     lines = extract_info(red, substr)
     for line in lines:
-        munged_name = munge_name(line["name"])
+        munged_name = munge_name(line['replacement_name'] or line['name'])
         line['node'].value = munged_name
     return red.dumps()
 
@@ -42,21 +44,6 @@ def munge_input_values(code: str, substr: str = "input") -> str:
 def munge_name(name):
     return f'__{name}'
 
-
-
-
-
-def replace_inputs(code: str, replacements: Dict[str, Any], substr: str = "input") -> str:
-    red = RedBaron(code)
-    lines = extract_info(red, substr)
-    
-    for line in lines:
-        full_name = line['replacement_name'] or line['name']
-        if full_name in replacements:
-            new_value = replacements[full_name]
-            line['node'].value = str(new_value)
-    new_code = red.dumps()
-    return new_code
 
 
 ## Info Extraction
