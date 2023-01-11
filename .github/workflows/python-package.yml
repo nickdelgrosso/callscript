@@ -41,5 +41,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        pytest --doctest-glob="*.md" --cov=src/callscript
+        pytest --doctest-glob="*.md" --cov=src/callscript --cov-report term --cov-report html:htmlcov --cov-report xml
         coveralls --service=github
