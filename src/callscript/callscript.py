@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Union
 from redbaron import RedBaron, AssignmentNode
@@ -16,44 +17,50 @@ def call(code: str, **kwargs) -> Dict[str, Any]:
     return outputs
     
 
+
 def get_output_var_names(code: str, substr: str = "output") -> Dict[str, Any]:
     red = RedBaron(code)
-    nodes = red.node_list
-    output_comment_nodes = nodes.find_all('comment', value = lambda s: substr in s)
-    comments = [node.dumps() for node in output_comment_nodes]
-    output_line_nums = [node.absolute_bounding_box.top_left.line for node in output_comment_nodes]
-    output_nodes = [red.at(line_num) for line_num in output_line_nums]
-    assert all(isinstance(node, AssignmentNode) for node in output_nodes)
-    output_names = [node.target.dumps() for node in output_nodes]
-
+    lines = extract_info(red, substr)
+    
     full_names = {}
-    for output_name, comment in zip(output_names, comments):
-        cmd, *newname = comment.split(':', 1)
-        full_name = newname[0] if newname else output_name
-        full_names[full_name] = output_name
+    for line in lines:
+        cmd, *newname = line['comment'].split(':', 1)
+        name = line['name']
+        full_name = newname[0] if newname else name
+        full_names[full_name] = name
 
     return full_names
 
 
 def replace_inputs(code: str, replacements: Dict[str, Any], substr: str = "input") -> str:
     red = RedBaron(code)
-    nodes = red.node_list
-    input_comment_nodes = nodes.find_all('comment', value=lambda s: substr in s)
-    comments = [node.dumps() for node in input_comment_nodes]
-    input_line_nums = (node.absolute_bounding_box.top_left.line for node in input_comment_nodes)
-    input_nodes = [red.at(line_num) for line_num in input_line_nums]
-    input_names = [node.target.dumps() for node in input_nodes]
-
+    lines = extract_info(red, substr)
     
-    for comment, name, node in zip(comments, input_names, input_nodes):
-        cmd, *newname = comment.split(':', 1)
+    for line in lines:
+        cmd, *newname = line['comment'].split(':', 1)
+        name = line['name']
         full_name = newname[0].strip() if newname else name
         if full_name in replacements:
             new_value = replacements[full_name]
-            node.value = str(new_value)
+            line['node'].value = str(new_value)
     new_code = red.dumps()
     return new_code
-    
+
+
+
+def extract_info(red: RedBaron, substr: str) -> Dict[str, Any]:
+    lines = []
+    for comment_node in red.node_list.find_all('comment', value=lambda s: substr in s):
+        comment = comment_node.dumps()
+        line_num = comment_node.absolute_bounding_box.top_left.line
+        assignment_node = red.at(line_num)
+        name = assignment_node.target.dumps()
+        assert isinstance(assignment_node, AssignmentNode)
+        line = dict(line_num=line_num, node=assignment_node, name=name, comment=comment)
+        lines.append(line)
+    return lines
+
+
 
 def exec_locally(code) -> Dict[str, Any]:
     names = {}

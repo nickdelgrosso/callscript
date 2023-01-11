@@ -25,7 +25,7 @@ def test_specify_output_variables_gets_new_varnames():
 
 
 
-def test_replace_input_variables():
+def test_replace_input_variables_int():
     code = dedent("""
     x = 3  # input
     y = 5
@@ -37,6 +37,7 @@ def test_replace_input_variables():
     """)
     result = replace_inputs(code, replacement, 'input')
     assert result == expected_result
+
 
 def test_replace_input_variables_with_new_varnames():
     code = dedent("""
@@ -77,3 +78,16 @@ def test_call_on_general_script_has_original_values_as_defaults():
 def test_callscript1():
     results = callscript('examples/script.py', x=10, y=30)
     assert results == {'z': 40}
+
+
+# def test_munging():
+#     code = dedent("""
+#     x = 3  # input
+#     y = 5
+#     """)
+#     new_code = munge_input_values(code)
+#     expected_result = dedent("""
+#     x = __x  # input
+#     y = 5
+#     """)
+#     assert new_code == expected_result
