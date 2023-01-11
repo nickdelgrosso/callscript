@@ -36,10 +36,10 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Install package
       run: |
-        pip install .
+        pip install -e .
     - name: Test with pytest
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        pytest --doctest-glob="*.md" --cov=src/callscript --cov-report term --cov-report html:htmlcov --cov-report xml
+        pytest --doctest-glob="*.md" --cov=callscript --cov-report term --cov-report html:htmlcov --cov-report xml
         coveralls --service=github

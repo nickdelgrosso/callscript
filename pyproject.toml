@@ -36,7 +36,7 @@ dev = [
 readme = {file = "README.md"}
 
 [tool.setuptools_scm]
-write_to = "src/callscript/_version.py"
+write_to = "callscript/_version.py"
 local_scheme = "no-local-version"
 
 
