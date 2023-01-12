@@ -1,7 +1,7 @@
 
 
 from textwrap import dedent
-from callscript.callscript import munge_input_values, call, callscript, comment_out_ignored_lines
+from callscript.callscript import call, callscript
 
 
 
@@ -39,51 +39,6 @@ def test_call_on_general_script_has_original_values_as_defaults():
 def test_callscript1():
     results = callscript('examples/script.py', x=10, y=30)
     assert results == {'z': 40}
-
-
-def test_munging():
-    code = dedent("""
-    x = 3  # input
-    y = 5
-    """)
-    new_code = munge_input_values(code, "input")
-    expected_result = dedent("""
-    x = __x  # input
-    y = 5
-    """)
-    assert new_code == expected_result
-
-
-def test_munging_varname_change():
-    code = dedent("""
-    x = 3  # input:Hello
-    y = 5  # input:World
-    """)
-    new_code = munge_input_values(code, "input")
-    expected_result = dedent("""
-    x = __Hello  # input:Hello
-    y = __World  # input:World
-    """)
-    assert new_code == expected_result
-
-
-def test_ignore_specified_lines():
-    code = dedent("""
-    a = 5  # ignore
-    b = "hello"  # input:Hello
-    c = "world" # ignore
-    d = 8
-    e = 4.2  # output
-    """)
-    new_code = comment_out_ignored_lines(code, "ignore")
-    expected_result = dedent("""
-    # a = 5  # ignore
-    b = "hello"  # input:Hello
-    # c = "world" # ignore
-    d = 8
-    e = 4.2  # output
-    """)
-    assert new_code == expected_result
 
 
 def test_callscript_ignores_lines():
