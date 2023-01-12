@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List, Optional, TypedDict, Union
+from typing import Any, Dict, List, Optional, TypedDict, Union, Iterable
 from redbaron import RedBaron, AssignmentNode, Node
 
 
@@ -9,65 +9,35 @@ def callscript(script: Union[str, Path], **kwargs) -> Dict[str, Any]:
 
 
 def call(code: str, **kwargs) -> Dict[str, Any]:
-
-    code = comment_out_ignored_lines(code)
+    include = list(kwargs.keys())
+    inputs = {munge_name(name): value for name, value in kwargs.items()}
 
     # Get/Replace Marked Inputs
     red = RedBaron(code)
+    commands = find_commands(red)
+    output_names = {}  # callscript name -> original name
+    for command in commands:
+        if 'input' in command['comment_cmd']:
+            name = command['final_name']
+            if not include or name in include:
+                command['node'].value = munge_name(name)
+        elif 'ignore' in command['comment_cmd']:
+            red.insert(command['line_num'], '# ' + command['node'].dumps())
+            red.remove(command['node'])
+        elif 'output' in command['comment_cmd']:
+            output_names[command['final_name']] = command['name']
 
-    include = list(kwargs.keys())
-    lines2 = extract_info(red, "input")
-    for line2 in lines2:
-        name = line2['final_name']
-        if not include or name in include:
-            line2['node'].value = munge_name(name)
-    inputs = {munge_name(name): value for name, value in kwargs.items()}
-
-    # Run Code
-    all_vars = exec_locally(red.dumps(), inputs)
-
-    # Extract Outputs
-    lines = extract_info(red, "output")
-    outputs = {line['final_name']: all_vars[line['name']] for line in lines}
+    new_code = red.dumps()
+    all_vars = inputs or {}
+    exec(new_code, {}, all_vars)
+    outputs = {final_name: all_vars[orig_name] for final_name, orig_name in output_names.items()}
     return outputs
     
-
-def exec_locally(code, inputs: dict = None) -> Dict[str, Any]:
-    names = inputs or {}
-    exec(code, {}, names)
-    return names
-
-
-def munge_input_values(code: str, substr: str = "input", include: Optional[List[str]] = None) -> str:
-    red = RedBaron(code)
-    lines = extract_info(red, substr)
-    for line in lines:
-        name = line['replacement_name'] or line['name']
-        if not include or name in include:
-            munged_name = munge_name(name)
-            line['node'].value = munged_name
-    return red.dumps()
-
-
-def comment_out_ignored_lines(code: str, substr: str = 'ignore') -> str:
-    red = RedBaron(code)
-    lines = code.splitlines(keepends=True)
-    comment_line_info = extract_info(red, substr)
-    for info in reversed(comment_line_info):
-        idx = info['line_num'] - 1
-        lines[idx] = '# ' + lines[idx]
-    new_code = ''.join(lines)
-    return new_code
 
 
 def munge_name(name):
     return f'__{name}'
 
-
-
-
-
-## Info Extraction
 
 class CommentedAssignment(TypedDict):
     line_num: int
@@ -78,6 +48,14 @@ class CommentedAssignment(TypedDict):
     replacement_name: Optional[str]
     final_name: Optional[str]
 
+
+def find_commands(red: RedBaron, substrings: Iterable[str] = ('input', 'output', 'ignore')) -> List[CommentedAssignment]:
+    all_info = []
+    for substr in substrings:
+        infos = extract_info(red, substr=substr)
+        all_info.extend(infos)
+    all_info_sorted = list(sorted(all_info, key=lambda info: info['line_num']))
+    return all_info_sorted
 
 
 def extract_info(red: RedBaron, substr: str) -> List[CommentedAssignment]:
