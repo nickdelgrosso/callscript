@@ -40,7 +40,13 @@ readme = {file = "README.md"}
 write_to = "callscript/_version.py"
 local_scheme = "no-local-version"
 
+[tool.mypy]
 
+[[tool.mypy.overrides]]
+module = [
+  "redbaron"
+]
+ignore_missing_imports = true
 # [project.urls]
 # homepage = "https://example.com"
 # documentation = "https://readthedocs.org"
