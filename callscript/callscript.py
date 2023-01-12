@@ -2,6 +2,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, TypedDict, Union, Iterable, Literal
 from redbaron import RedBaron, AssignmentNode, Node
 
+from .redbaron_utils import get_assignment_name, replace_right_side, comment_out, get_node_at_start_of_line
+
 
 def callscript(script: Union[str, Path], **kwargs) -> Dict[str, Any]:
     code = Path(script).read_text()
@@ -33,19 +35,6 @@ def call(code: str, **kwargs) -> Dict[str, Any]:
     return outputs
 
 
-def get_assignment_name(node: AssignmentNode) -> str:
-    return node.target.dumps()
-
-
-def replace_right_side(node: Node, value: str) -> None:
-    node.value = value
-
-
-def comment_out(red, node) -> None:
-    red.insert(get_line_num(node), '# ' + node.dumps())
-    red.remove(node)
-
-
 def munge_name(name) -> str:
     return f'__{name}'
 
@@ -57,35 +46,22 @@ class CallscriptCommand(TypedDict):
 
 
 def find_commands(red: RedBaron, substrings: Iterable[str] = ('input', 'output', 'ignore')) -> List[CallscriptCommand]:
-    all_info = []
-    for substr in substrings:
-        infos = extract_info(red, substr=substr)
-        all_info.extend(infos)
-    return all_info
 
-
-def extract_info(red: RedBaron, substr: str) -> List[CallscriptCommand]:
-    lines = []
-    comment_nodes = red.node_list.find_all('comment', value=lambda s: substr in s)
-    for comment_node in comment_nodes:
-        comment = comment_node.dumps()
-        line_num = get_line_num(comment_node)
-        assignment_node = red.at(line_num)
-        name = assignment_node.target.dumps() if isinstance(assignment_node, AssignmentNode) else None
+    infos = []
+    command_nodes = red.node_list.find_all('comment', value=lambda s: any(substr in s for substr in substrings))
+    for command_node in command_nodes:
+        comment = command_node.dumps()
+        assignment_node = get_node_at_start_of_line(red, command_node)
+        name = get_assignment_name(assignment_node) if isinstance(assignment_node, AssignmentNode) else None
         cmd, *newname = comment.replace('#', '').strip().split(':', 1)
 
-        line: CallscriptCommand = {
-            'node': assignment_node, 
+        info: CallscriptCommand = {
+            'node': assignment_node,
             'name': (newname[0] if newname else name) or name,
             'command': cmd,
         }
-        lines.append(line)
-    return lines
-
-
-def get_line_num(node: Node) -> int:
-    line_num = node.absolute_bounding_box.top_left.line
-    return line_num
+        infos.append(info)
+    return infos
 
 
 
