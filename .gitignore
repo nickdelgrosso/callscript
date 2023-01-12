@@ -7,3 +7,4 @@ build/
 .pytest_cache
 .tox
 _version.py
+.idea

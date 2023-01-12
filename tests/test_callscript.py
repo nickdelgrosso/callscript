@@ -1,27 +1,7 @@
 
 
 from textwrap import dedent
-from callscript.callscript import get_output_var_names, munge_input_values, call, callscript, strip_ignored_lines
-
-def test_get_output_names():
-    script = dedent("""
-    start = "hello"
-    x = 3 # output
-    y = 5 # This code does nothing
-    final = "done!"  # output
-    """)
-    expected_outputs = {'x': 'x', 'final': 'final'}
-    outputs = get_output_var_names(script)
-    assert outputs == expected_outputs
-
-
-def test_specify_output_variables_gets_new_varnames():
-    script = dedent("""
-        x = 3 # output:First
-        y = 5 # output:Second
-    """)
-    outputs = get_output_var_names(script)
-    assert outputs == {'First': 'x', 'Second': 'y'}
+from callscript.callscript import munge_input_values, call, callscript, comment_out_ignored_lines
 
 
 
@@ -95,9 +75,11 @@ def test_ignore_specified_lines():
     d = 8
     e = 4.2  # output
     """)
-    new_code = strip_ignored_lines(code, "ignore")
+    new_code = comment_out_ignored_lines(code, "ignore")
     expected_result = dedent("""
+    # a = 5  # ignore
     b = "hello"  # input:Hello
+    # c = "world" # ignore
     d = 8
     e = 4.2  # output
     """)
