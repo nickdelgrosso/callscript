@@ -13,10 +13,12 @@ def callscript(script: Union[str, Path], **kwargs) -> Dict[str, Any]:
 def call(code: str, **kwargs) -> Dict[str, Any]:
 
     red = RedBaron(code)
+    input_names = []
     output_names = {}  # callscript name -> original name
     for command in find_commands(red):
         if 'input' in command['command']:
             name = command['name']
+            input_names.append(name)
             if not kwargs or name in kwargs:
                 replace_right_side(command['node'], munge_name(name))
         elif 'ignore' in command['command']:
@@ -28,8 +30,12 @@ def call(code: str, **kwargs) -> Dict[str, Any]:
             assert isinstance(name, str)
             output_names[name] = get_assignment_name(node)
 
-    new_code = red.dumps()
+    for name in kwargs:
+        if name not in input_names:
+            raise TypeError(f"script got an unexpected keyword argument '{name}'.  Possible arguments: f{input_names}")
     all_vars = {munge_name(name): value for name, value in kwargs.items()}
+    
+    new_code = red.dumps()
     exec(new_code, {}, all_vars)
     outputs = {final_name: all_vars[orig_name] for final_name, orig_name in output_names.items()}
     return outputs
@@ -57,7 +63,7 @@ def find_commands(red: RedBaron, substrings: Iterable[str] = ('input', 'output',
 
         info: CallscriptCommand = {
             'node': assignment_node,
-            'name': (newname[0] if newname else name) or name,
+            'name': (newname[0].strip() if newname else name) or name,
             'command': cmd,
         }
         infos.append(info)
