@@ -47,10 +47,10 @@ module = [
   "redbaron"
 ]
 ignore_missing_imports = true
-# [project.urls]
+[project.urls]
 # homepage = "https://example.com"
 # documentation = "https://readthedocs.org"
-# repository = "https://github.com/me/spam.git"
+repository = "https://github.com/nickdelgrosso/callscript"
 # changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 
 # [project.scripts]
