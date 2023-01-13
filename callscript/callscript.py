@@ -22,17 +22,17 @@ def call(code: str, **kwargs) -> Dict[str, Any]:
     all_vars = {munge_name(name): value for name, value in kwargs.items()}
     new_code = script['code']
     exec(new_code, {}, all_vars)
-    outputs = {final_name: all_vars[orig_name] for final_name, orig_name in script['outputs'].items()}
+    outputs = all_vars[script['output_name']]
     return outputs
 
 
 class ScriptMetadata(TypedDict):
     code: str
     input_names: List[str]
-    outputs: Dict[str, Any]
+    output_name: str
     
 
-def modify_code(code) -> ScriptMetadata:
+def modify_code(code, output_name: str = '__return') -> ScriptMetadata:
     red = RedBaron(code)
     input_names = []
     output_names = {}  # callscript name -> original name
@@ -51,12 +51,15 @@ def modify_code(code) -> ScriptMetadata:
             assert isinstance(name, str)
             output_names[name] = get_assignment_name(node)
 
+    ss = ", ".join(f"{k}={v}" for k, v in output_names.items())
+    
+    red[-1].insert_after(f'{output_name} = dict({ss})')
     
     new_code = red.dumps()
     results: ScriptMetadata = {
         'code': new_code,
         'input_names': input_names,
-        'outputs': output_names,
+        'output_name': output_name,
     }
     return results
 
