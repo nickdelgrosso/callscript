@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "callscript"
 description = "Makes scripts feel like functions."
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = {file = "LICENSE.txt"}
 readme = "README.md"
 keywords = []#
