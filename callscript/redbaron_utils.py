@@ -12,6 +12,7 @@ def replace_right_side(node: Node, value: str) -> None:
     >>> node
     x = 5
     >>> replace_right_side(node, '10')
+    >>> node
     x = 10
     """
     node.value = value
