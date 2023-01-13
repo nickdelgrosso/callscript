@@ -1,8 +1,9 @@
 from pathlib import Path
+from textwrap import dedent
 from typing import Any, Dict, List, Optional, TypedDict, Union, Iterable, Literal
 from redbaron import RedBaron, AssignmentNode, Node
 
-from .redbaron_utils import get_assignment_name, replace_right_side, comment_out, get_node_at_start_of_line
+from .redbaron_utils import get_assignment_name, get_line_num, replace_right_side, prepend, get_node_at_start_of_line
 
 
 def callscript(script: Union[str, Path], **kwargs) -> Dict[str, Any]:
@@ -19,10 +20,10 @@ def call(code: str, **kwargs) -> Dict[str, Any]:
         if 'input' in command['command']:
             name = command['name']
             input_names.append(name)
-            if not kwargs or name in kwargs:
-                replace_right_side(command['node'], munge_name(name))
+            node = command['node']
+            node.replace(f"{node.target.dumps()} = {munge_name(name)} if '{munge_name(name)}' in vars() else {node.value}")
         elif 'ignore' in command['command']:
-            comment_out(red, command['node'])
+            prepend(red, command['node'], '# ')
         elif 'output' in command['command']:
             node = command['node']
             assert isinstance(node, AssignmentNode)
@@ -30,15 +31,17 @@ def call(code: str, **kwargs) -> Dict[str, Any]:
             assert isinstance(name, str)
             output_names[name] = get_assignment_name(node)
 
+    new_code = red.dumps()
+
     for name in kwargs:
         if name not in input_names:
-            raise TypeError(f"script got an unexpected keyword argument '{name}'.  Possible arguments: f{input_names}")
+            raise TypeError(f"script got an unexpected keyword argument '{name}'.  Possible arguments: {input_names}")
+
     all_vars = {munge_name(name): value for name, value in kwargs.items()}
-    
-    new_code = red.dumps()
     exec(new_code, {}, all_vars)
     outputs = {final_name: all_vars[orig_name] for final_name, orig_name in output_names.items()}
     return outputs
+
 
 
 def munge_name(name) -> str:

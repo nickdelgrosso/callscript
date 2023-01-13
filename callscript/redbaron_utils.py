@@ -9,8 +9,8 @@ def replace_right_side(node: Node, value: str) -> None:
     node.value = value
 
 
-def comment_out(red, node) -> None:
-    red.insert(get_line_num(node), '# ' + node.dumps())
+def prepend(red: RedBaron, node: Node, text: str) -> None:
+    red.insert(get_line_num(node), text + node.dumps())
     red.remove(node)
 
 
