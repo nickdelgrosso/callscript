@@ -6,6 +6,14 @@ def get_assignment_name(node: AssignmentNode) -> str:
 
 
 def replace_right_side(node: Node, value: str) -> None:
+    """
+    >>> from redbaron import RedBaron
+    >>> node = RedBaron('x = 5')[0]
+    >>> node
+    x = 5
+    >>> replace_right_side(node, '10')
+    x = 10
+    """
     node.value = value
 
 
