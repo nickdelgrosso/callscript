@@ -30,7 +30,8 @@ dynamic = ["version"]
 dev = [
   "pytest",
   "pytest-cov[all]",
-  "tox"
+  "tox",
+  "scriv"
 ]
 
 [tool.setuptools.dynamic]
@@ -51,7 +52,7 @@ ignore_missing_imports = true
 # homepage = "https://example.com"
 # documentation = "https://readthedocs.org"
 repository = "https://github.com/nickdelgrosso/callscript"
-# changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+changelog = "https://github.com/nickdelgrosso/callscript/blob/main/CHANGELOG.rst"
 
 # [project.scripts]
 # spam-cli = "spam:main_cli"

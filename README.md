@@ -124,3 +124,10 @@ To run tests, run the following command
   tox
 ```
 
+
+
+## Contributing
+
+### Adding to the Changelog
+  
+Don't modify the `CHANGELOG.rst` file directly!  Instead, use`scriv create` make a new entry for the changelog.  After you've written a contribution, add the entry and write what  you did into the template.   When we are ready to make a release, we'll use the `scriv collect` command to aggregate these fragments into a new changeelog entry.
