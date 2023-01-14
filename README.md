@@ -14,6 +14,8 @@ make the function work properly:
 # myscript.py
 x = 1      # input
 y = 2      # input
+w = x * y
+v = x / y  # output
 z = x + y  # output
 print(z)   # ignore
 ```
@@ -29,7 +31,7 @@ In any case,  with `callscript`, you can leave the original script alone and wra
 
 ## Installation
 
-Install my-project with PyPI
+Install `callscript` with PyPI
 
 ```bash
   pip install callscript
