@@ -71,7 +71,7 @@ def munge_name(name) -> str:
 
 class CallscriptCommand(TypedDict):
     node: Node
-    name: Optional[str]
+    name: str
     command: Literal['input', 'output', 'ignore']
 
 
@@ -82,7 +82,7 @@ def find_commands(red: RedBaron, substrings: Iterable[str] = ('input', 'output',
     for command_node in command_nodes:
         comment = command_node.dumps()
         assignment_node = get_node_at_start_of_line(red, command_node)
-        name = get_assignment_name(assignment_node) if isinstance(assignment_node, AssignmentNode) else None
+        name = get_assignment_name(assignment_node) if isinstance(assignment_node, AssignmentNode) else ""
         cmd, *newname = comment.replace('#', '').strip().split(':', 1)
 
         info: CallscriptCommand = {
