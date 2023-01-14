@@ -31,7 +31,7 @@ In any case,  with `callscript`, you can leave the original script alone and wra
 
 ## Installation
 
-Install my-project with PyPI
+Install `callscript` with PyPI
 
 ```bash
   pip install callscript
