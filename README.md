@@ -4,16 +4,41 @@
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
 
-# callscript
+# Callscript
 
-Want to add a GUI, CLI, or simply test your script, but you don't want to modify your code?  Call a script as though it were a function!  
+Not worth it to refactor your script into a bunch of functions?  This is a simple python library that lets you run your script as though you had, so you can
+call `results = callscript('myscript.py', x=3, y=4)`.  Just add comments in your scirpt to show where the inputs and outputs are, and `callscript` will
+make the function work properly:
+
+```python
+# myscript.py
+x = 1      # input
+y = 2      # input
+z = x + y  # output
+print(z)   # ignore
+```
+
+Why does this exist?  Because sometimes you don't want to touch your old code or want to keep working with it using an interactive coding tool like Spyder, VSCode's interactive mode, or Jupyter, but you still want to be able to test your script using new parameters, or wrap it with a user interface. 
+
+Or maybe you're not sure how to go about changing the script's code to make it work in a new context and don't have a lot of time at the moment to work it out, or maybe you're collaborating with someone who isn't ready to refactor the script yet.  
+
+In any case,  with `callscript`, you can leave the original script alone and wrap it with your new functionality.
+
+
+
 
 ## Installation
 
-`pip install callscript`
+Install my-project with PyPI
+
+```bash
+  pip install callscript
+```
+    
+## Usage / Examples
 
 
-## Usage:
+### Simple Input-Output Labeling
 
 If you label your script with the "input" or "output" comments, `callscript` can call it!
 
@@ -34,6 +59,8 @@ Then from your other code, you can call it with the `callscript()` function:
 
 ```
 
+### Modifying Input-Output Variable Names for your Function's API
+
 Want to change your variable names? You can do that, too!
 
 ```python
@@ -48,6 +75,9 @@ z = x + y  # output:sum
 {'sum': 30}
 
 ```
+
+
+### Ignoring Lines When the Script is Called as a Function
 
 Want some lines to be ignored when being called by `callscript()`?  Use the `# ignore` tag!
 
@@ -66,7 +96,9 @@ z = 100000   # ignore
 
 ```
 
-`callscript()` will use the original values of the inputs in the script as defaults.
+### Using the Orignal Script Values as Function Defaults
+
+`callscript()` will automatically use the original values of the inputs in the script as defaults.
 
 ```python
 # examples/script4.py
@@ -80,3 +112,15 @@ msg = greeting + name  # output
 {'msg': 'Hello, Emma'}
 
 ```
+## Authors
+
+- [Nicholas A. Del Grosso](https://www.github.com/nickdelgrosso)
+
+## Running Tests
+
+To run tests, run the following command
+
+```bash
+  tox
+```
+
