@@ -14,6 +14,8 @@ make the function work properly:
 # myscript.py
 x = 1      # input
 y = 2      # input
+w = x * y
+v = x / y  # output
 z = x + y  # output
 print(z)   # ignore
 ```
