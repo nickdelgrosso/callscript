@@ -41,7 +41,7 @@ def modify_code(code, output_name: str = '__return') -> ScriptMetadata:
             name = command['name']
             input_names.append(name)
             node = command['node']
-            node.insert_before(f"{munge_name(name)} = {munge_name(name)} if '{munge_name(name)}' in vars() else None")
+            # node.insert_before(f"{munge_name(name)} = {munge_name(name)} if '{munge_name(name)}' in vars() else None")
             node.replace(f"{node.target.dumps()} = {munge_name(name)} if {munge_name(name)} != None else {node.value}")
         elif 'ignore' in command['command']:
             prepend(red, command['node'], '# ')
@@ -52,8 +52,11 @@ def modify_code(code, output_name: str = '__return') -> ScriptMetadata:
             assert isinstance(name, str)
             output_names[name] = get_assignment_name(node)
 
-    ss = ", ".join(f"{k}={v}" for k, v in output_names.items())
+    for name in input_names:
+        red[0].insert_before(f"{munge_name(name)} = {munge_name(name)} if '{munge_name(name)}' in vars() else None")
+
     
+    ss = ", ".join(f"{k}={v}" for k, v in output_names.items())
     red[-1].insert_after(f'{output_name} = dict({ss})')
     
     
