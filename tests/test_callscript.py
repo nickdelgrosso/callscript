@@ -99,3 +99,15 @@ def test_typeerror_lists_possible_inputs():
         assert name in str(exc.value)
     for name in ['circus', 'show']:
         assert name not in str(exc.value)
+
+
+
+# def test_namerror_shows_proper_traceback_with_source_code_for_debugging():
+#     code = dedent("""
+#     x = 4 # input
+#     z = g + x  # output
+#     """)
+#     with pytest.raises(NameError) as exc:
+#         call(code, x=5)
+#     for tb in exc.traceback:
+#         assert tb.frame.code.fullsource  # All levels of traceback should show source code, for debugging

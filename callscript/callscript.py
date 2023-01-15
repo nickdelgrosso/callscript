@@ -21,8 +21,10 @@ def call(code: str, **kwargs) -> Dict[str, Any]:
 
     all_vars = {munge_name(name): value for name, value in kwargs.items()}
     new_code = script['code']
+    
     exec(new_code, {}, all_vars)
-    outputs = all_vars[script['output_name']]
+    fun = all_vars['fun']
+    outputs = fun(**kwargs)
     return outputs
 
 
@@ -53,11 +55,18 @@ def modify_code(code, output_name: str = '__return') -> ScriptMetadata:
             output_names[name] = get_assignment_name(node)
 
     for name in input_names:
-        red[0].insert_before(f"{munge_name(name)} = {munge_name(name)} if '{munge_name(name)}' in vars() else None")
+        red[0].insert_before(f"{munge_name(name)} = {name}")
+
+    gg = ", ".join(f"{name}=None" for name in input_names)
+    red[0].insert_before(f"def fun({gg}):\n    ")  # extra newline and four spaces somehow get around a redbaron parsing error.
+    
+    red[-1].insert_after(f'return dict({", ".join(f"{k}={v}" for k, v in output_names.items())})')
+    for node in red[1:]:
+        node.increase_indentation(4)
+        
+    # red[-1].insert_after(f'{output_name} = fun(')
 
     
-    ss = ", ".join(f"{k}={v}" for k, v in output_names.items())
-    red[-1].insert_after(f'{output_name} = dict({ss})')
     
     
     new_code = red.dumps()
