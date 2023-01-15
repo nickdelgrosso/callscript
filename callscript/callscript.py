@@ -41,7 +41,8 @@ def modify_code(code, output_name: str = '__return') -> ScriptMetadata:
             name = command['name']
             input_names.append(name)
             node = command['node']
-            node.replace(f"{node.target.dumps()} = {munge_name(name)} if '{munge_name(name)}' in vars() else {node.value}")
+            node.insert_before(f"{munge_name(name)} = {munge_name(name)} if '{munge_name(name)}' in vars() else None")
+            node.replace(f"{node.target.dumps()} = {munge_name(name)} if {munge_name(name)} != None else {node.value}")
         elif 'ignore' in command['command']:
             prepend(red, command['node'], '# ')
         elif 'output' in command['command']:
@@ -54,6 +55,7 @@ def modify_code(code, output_name: str = '__return') -> ScriptMetadata:
     ss = ", ".join(f"{k}={v}" for k, v in output_names.items())
     
     red[-1].insert_after(f'{output_name} = dict({ss})')
+    
     
     new_code = red.dumps()
     results: ScriptMetadata = {
