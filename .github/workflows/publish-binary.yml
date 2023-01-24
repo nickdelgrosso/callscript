@@ -23,7 +23,7 @@ jobs:
         python -m pip install pyinstaller
     - name: Build Executable Binary
       run: |
-        pyinstaller cli.py --onefile
+        pyinstaller callscript/cli.py --onefile
         ls -a dist
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
