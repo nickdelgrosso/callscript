@@ -26,12 +26,12 @@ jobs:
     - name: Build Executable Binary
       run: |
         pyinstaller check.py
+        ls -a dist
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.PAT }}
         file: dist/*
         file_glob: true
-        asset_name: greet
         tag: ${{ github.ref }}
         overwrite: true
