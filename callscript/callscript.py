@@ -14,13 +14,14 @@ def callscript(script: Union[str, Path], **kwargs) -> Dict[str, Any]:
 def call(code: str, **kwargs) -> Dict[str, Any]:
 
     script = modify_code(code)
+    new_code = script['code']
 
     for name in kwargs:
         if name not in script['input_names']:
             raise TypeError(f"script got an unexpected keyword argument '{name}'.  Possible arguments: {script['input_names']}")
 
     all_vars = {munge_name(name): value for name, value in kwargs.items()}
-    new_code = script['code']
+    
     
     exec(new_code, {}, all_vars)
     fun = all_vars['fun']

@@ -1,9 +1,6 @@
 name: Publish Binaries
 
 on:
-  push:
-    tags:
-      - '*'
   release:
     types: [published]
 
@@ -11,7 +8,6 @@ jobs:
   build:
     name: Publish binaries
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.10
@@ -27,7 +23,7 @@ jobs:
         python -m pip install pyinstaller
     - name: Build Executable Binary
       run: |
-        pyinstaller check.py --onefile
+        pyinstaller cli.py --onefile
         ls -a dist
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
