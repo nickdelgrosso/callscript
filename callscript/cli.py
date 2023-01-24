@@ -5,7 +5,7 @@ from typing import List
 from callscript import modify_code
 
 
-def main(args: List[str] = None):
+def main(args = None):
     parser = ArgumentParser(description="Extract Script into a Module using Comment Tags")
     parser.add_argument('script', help="Path to the script")
 
