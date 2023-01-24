@@ -42,7 +42,7 @@ jobs:
       with:
         file: README.md
         asset_name: README-Release.md
-        overwrite: false
+        overwrite: true
         # If true the file can be a glob pattern, asset_name is ignored if this is true.
         # file_glob: # optiona
       
