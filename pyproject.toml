@@ -58,8 +58,8 @@ changelog = "https://github.com/nickdelgrosso/callscript/blob/main/CHANGELOG.md"
 format = "md"
 version = "literal:callscript/_version.py:version"
 
-# [project.scripts]
-# spam-cli = "spam:main_cli"
+[project.scripts]
+extract-method = "callscript.cli:main"
 
 # [project.entry-points."spam.magical"]
 # tomatoes = "spam:main_tomatoes"
