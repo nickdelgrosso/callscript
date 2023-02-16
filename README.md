@@ -7,7 +7,7 @@
 # Callscript
 
 Not worth it to refactor your script into a bunch of functions?  This is a simple python library that lets you run your script as though you had, so you can
-call `results = callscript('myscript.py', x=3, y=4)`.  Just add comments in your scirpt to show where the inputs and outputs are, and `callscript` will
+call `results = callscript('myscript.py', x=3, y=4)`.  Just add comments in your script to show where the inputs and outputs are, and `callscript` will
 make the function work properly:
 
 ```python
